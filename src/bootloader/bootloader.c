@@ -4,8 +4,17 @@
 #include "../firmware_update/crc32.h"
 #include "hardware/structs/scb.h"
 #include "pico/stdlib.h"
+#include "pico/platform.h"
 #include <stdio.h>
 #include <string.h>
+
+// LED pin definition for error indication
+// Pico W/2W use CYW43 wireless chip LED, not direct GPIO
+// For bootloader simplicity, we'll skip LED blinking if not available
+#ifndef PICO_DEFAULT_LED_PIN
+#define PICO_DEFAULT_LED_PIN 25  // Fallback for non-wireless boards
+#define LED_NOT_AVAILABLE 1
+#endif
 
 /**
  * Dual-Bank OTA Bootloader for OpenTrickler
@@ -39,12 +48,15 @@
  * Never returns - system halts
  */
 static void __attribute__((noreturn)) panic_blink(int pattern_count) {
-    // Initialize GPIO for LED (typically GPIO 25 on Pico W)
+#ifndef LED_NOT_AVAILABLE
+    // Initialize GPIO for LED (typically GPIO 25 on Pico)
     const uint LED_PIN = PICO_DEFAULT_LED_PIN;
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+#endif
 
     while (true) {
+#ifndef LED_NOT_AVAILABLE
         // Short blinks
         for (int i = 0; i < pattern_count; i++) {
             gpio_put(LED_PIN, 1);
@@ -58,6 +70,10 @@ static void __attribute__((noreturn)) panic_blink(int pattern_count) {
         sleep_ms(1000);
         gpio_put(LED_PIN, 0);
         sleep_ms(1000);
+#else
+        // No LED available, just loop with delay
+        sleep_ms(2000);
+#endif
     }
 }
 

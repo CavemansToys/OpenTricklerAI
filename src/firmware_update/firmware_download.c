@@ -256,8 +256,8 @@ static err_t tcp_connected_callback(void *arg, struct tcp_pcb *tpcb, err_t err) 
     return ERR_OK;
 }
 
-// DNS found callback
-static void dns_found_callback(const char *name, const ip_addr_t *ipaddr, void *arg) {
+// DNS found callback for firmware download
+static void firmware_dns_callback(const char *name, const ip_addr_t *ipaddr, void *arg) {
     (void)name;
     (void)arg;
 
@@ -350,11 +350,11 @@ bool firmware_download_start(const char *url, uint32_t expected_crc32,
 
     ip_addr_t resolved_ip;
     err_t err = dns_gethostbyname(download_ctx.parsed_url.host, &resolved_ip,
-                                  dns_found_callback, NULL);
+                                  firmware_dns_callback, NULL);
 
     if (err == ERR_OK) {
         // IP already cached, call callback directly
-        dns_found_callback(download_ctx.parsed_url.host, &resolved_ip, NULL);
+        firmware_dns_callback(download_ctx.parsed_url.host, &resolved_ip, NULL);
     } else if (err != ERR_INPROGRESS) {
         set_download_error("DNS lookup failed");
         download_ctx.state = DOWNLOAD_IDLE;
