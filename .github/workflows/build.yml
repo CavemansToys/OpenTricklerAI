@@ -27,7 +27,7 @@ jobs:
         if [ ! -f "library/pico-sdk/pico_sdk_init.cmake" ]; then
           echo "Pico SDK not found, downloading..."
           rm -rf library/pico-sdk
-          git clone --depth 1 --branch 1.5.1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
+          git clone --depth 1 --branch 2.0.0 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
           cd library/pico-sdk
           git submodule update --init
         fi
