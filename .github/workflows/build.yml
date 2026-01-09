@@ -1,0 +1,66 @@
+name: Build Firmware
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Install ARM toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+        
+    - name: Download Pico SDK (if submodule empty)
+      run: |
+        if [ ! -f "library/pico-sdk/pico_sdk_init.cmake" ]; then
+          echo "Pico SDK not found, downloading..."
+          rm -rf library/pico-sdk
+          git clone --depth 1 --branch 1.5.1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
+          cd library/pico-sdk
+          git submodule update --init
+        fi
+        
+    - name: Build for Pico 2W
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=ON -DUSE_OTA_LINKER_SCRIPT=ON -DOTA_TEST_MODE=OFF
+        make -j$(nproc)
+        
+    - name: Upload firmware artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-pico2w
+        path: |
+          build/app.uf2
+          build/app.bin
+          build/app.elf
+          
+    - name: Build for Pico W (RP2040)
+      run: |
+        rm -rf build
+        mkdir build
+        cd build
+        cmake .. -DPICO_BOARD=pico_w -DBUILD_OTA_BOOTLOADER=ON -DUSE_OTA_LINKER_SCRIPT=ON -DOTA_TEST_MODE=OFF
+        make -j$(nproc)
+        
+    - name: Upload firmware artifacts (Pico W)
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-picow
+        path: |
+          build/app.uf2
+          build/app.bin
+          build/app.elf
