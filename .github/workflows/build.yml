@@ -14,18 +14,20 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-        
+      with:
+        submodules: recursive
+
     - name: Install ARM toolchain
       run: |
         sudo apt-get update
         sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
-        
-    - name: Download Pico SDK (latest with RP2350)
+
+    - name: Update Pico SDK to latest (for RP2350/Pico2W)
       run: |
-        echo "Downloading latest Pico SDK with RP2350/Pico2W support..."
-        rm -rf library/pico-sdk
-        git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
+        echo "Updating Pico SDK to latest with RP2350/Pico2W support..."
         cd library/pico-sdk
+        git fetch origin
+        git checkout origin/master
         git submodule update --init
         
     - name: Build for Pico 2W
