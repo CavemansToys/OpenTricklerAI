@@ -78,8 +78,12 @@ add_executable("${TARGET_NAME}")
 # Include source
 include_directories(${SRC_DIRECTORY})
 
-# Pull in FreeRTOS
-include(${FREERTOS_SRC_DIRECTORY}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+# Pull in FreeRTOS (RP2040 or RP2350 based on platform)
+if(PICO_PLATFORM STREQUAL "rp2350" OR PICO_PLATFORM STREQUAL "rp2350-arm-s" OR PICO_PLATFORM STREQUAL "rp2350-riscv")
+    include(${FREERTOS_SRC_DIRECTORY}/portable/ThirdParty/GCC/RP2350_ARM_NTZ/FreeRTOS_Kernel_import.cmake)
+else()
+    include(${FREERTOS_SRC_DIRECTORY}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+endif()
 
 # Pull in u8g2
 add_subdirectory(${U8G2_SRC_DIRECYTORY})
