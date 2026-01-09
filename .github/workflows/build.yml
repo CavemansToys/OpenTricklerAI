@@ -14,15 +14,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        submodules: true
 
-    - name: Update submodules to latest
+    - name: Clone all dependencies
       run: |
-        echo "Updating FreeRTOS, u8g2, Trinamic to latest versions..."
-        git submodule update --remote library/FreeRTOS-Kernel
-        git submodule update --remote library/u8g2
-        git submodule update --remote library/Trinamic-library
+        echo "Cloning project dependencies..."
+        git clone --depth 1 https://github.com/raspberrypi/FreeRTOS-Kernel.git library/FreeRTOS-Kernel
+        git clone --depth 1 https://github.com/olikraus/u8g2.git library/u8g2
+        git clone --depth 1 https://github.com/terjeio/Trinamic-library.git library/Trinamic-library
 
     - name: Install ARM toolchain
       run: |
