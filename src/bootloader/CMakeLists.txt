@@ -64,10 +64,8 @@ target_link_options(${BOOTLOADER_TARGET} PRIVATE
     -Wl,--print-memory-usage
 )
 
-# Add binary info
-pico_set_program_name(${BOOTLOADER_TARGET} "OTA Bootloader")
-pico_set_program_version(${BOOTLOADER_TARGET} "1.0.0")
-pico_set_program_description(${BOOTLOADER_TARGET} "Dual-bank OTA bootloader for OpenTrickler")
+# NOTE: Binary info disabled via PICO_NO_BINARY_INFO=1 to save space
+# Bootloader must fit in first 256 bytes of flash
 
 message(STATUS "Bootloader build configured")
 message(STATUS "  - Linker script: ${CMAKE_CURRENT_SOURCE_DIR}/bootloader.ld")

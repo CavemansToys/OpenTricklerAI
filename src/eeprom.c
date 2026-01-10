@@ -8,6 +8,7 @@
 
 #include "hardware/regs/rosc.h"
 #include "hardware/regs/addressmap.h"
+#include "pico/time.h"
 
 #include "eeprom.h"
 #include "scale.h"

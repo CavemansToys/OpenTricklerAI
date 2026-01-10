@@ -6,6 +6,10 @@
 #include "../bootloader/flash_partitions.h"
 #include "../bootloader/metadata.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Firmware Manager - High-Level OTA Update Orchestration
  *
@@ -166,5 +170,9 @@ uint32_t firmware_manager_get_progress(void);
  * @return true if update in progress
  */
 bool firmware_manager_is_update_in_progress(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FIRMWARE_MANAGER_H

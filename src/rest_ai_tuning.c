@@ -3,6 +3,7 @@
 #include "profile.h"
 #include "http_rest.h"
 #include "common.h"
+#include "input_validation.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
