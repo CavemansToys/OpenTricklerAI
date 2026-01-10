@@ -139,9 +139,6 @@ add_subdirectory(${SRC_DIRECTORY})
 # Collect all source files
 file(GLOB SRC ${SRC_DIRECTORY}/*.c 
               ${SRC_DIRECTORY}/*.cpp)
-# Exclude app_blink_test.cpp (it has its own main() for standalone testing)
-list(REMOVE_ITEM SRC "${SRC_DIRECTORY}/app_blink_test.cpp")
-
 
 # Include application source file
 target_sources("${TARGET_NAME}" PUBLIC
