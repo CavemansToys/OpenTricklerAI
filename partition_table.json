@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": [1, 0],
   "unpartitioned": {
     "families": ["absolute"],
     "permissions": {
@@ -12,28 +12,25 @@
     {
       "name": "A",
       "id": 0,
-      "start": "0x10010000",
       "size": "896K",
-      "families": ["absolute"],
+      "families": ["rp2350-arm-s", "rp2350-riscv"],
       "permissions": {
         "secure": "rw",
         "nonsecure": "rw",
         "bootloader": "rw"
-      },
-      "flags": ["A", "UF2"]
+      }
     },
     {
       "name": "B",
       "id": 1,
-      "start": "0x100F0000",
       "size": "896K",
-      "families": ["absolute"],
+      "families": ["rp2350-arm-s", "rp2350-riscv"],
       "permissions": {
         "secure": "rw",
         "nonsecure": "rw",
         "bootloader": "rw"
       },
-      "flags": ["B", "UF2"]
+      "link": ["a", 0]
     }
   ]
 }
