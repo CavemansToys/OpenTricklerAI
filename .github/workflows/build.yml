@@ -40,11 +40,11 @@ jobs:
         git submodule update --init --depth 1 lib/mbedtls
         echo "SDK ready"
 
-    - name: Build for Pico 2W (RP2350 - Standard build, NO OTA)
+    - name: Build for Pico 2W (RP2350 - Web-only test mode with partition OTA)
       run: |
         mkdir build
         cd build
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=OFF
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=ON
         make -j$(nproc)
 
     - name: Upload firmware artifacts
