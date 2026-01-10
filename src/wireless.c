@@ -268,9 +268,17 @@ void wireless_task(void *p) {
     wireless_config.current_wireless_state = WIRELESS_STATE_NOT_INITIALIZED;
     wireless_ctrl_queue = xQueueCreate(5, sizeof(wireless_ctrl_t));
 
+    printf("Initializing CYW43 WiFi chip...\n");
     if (cyw43_arch_init()) {
-        exit(-1);
+        printf("ERROR: CYW43 WiFi initialization failed!\n");
+        printf("WiFi will not be available.\n");
+        printf("This is non-fatal - system will continue running.\n");
+        // Don't exit - let the system continue without WiFi
+        // Just suspend this task instead of crashing the entire program
+        vTaskSuspend(NULL);
+        return;
     }
+    printf("CYW43 WiFi chip initialized successfully\n");
 
     wireless_config.current_wireless_state = WIRELESS_STATE_IDLE;
 

@@ -80,12 +80,23 @@ int main()
 {
     stdio_init_all();
 
+    // CRITICAL: Wait for USB serial to enumerate before printing
+    // Without this delay, early printf() output is lost
+    sleep_ms(2000);
+
+    printf("\n\n");
+    printf("==========================================\n");
+    printf("OpenTrickler RP2350 - Firmware Starting\n");
+    printf("==========================================\n");
+    printf("Pico SDK initialized\n");
+
     // Enable watchdog timer for automatic recovery from hangs
     // Must be updated periodically or system will reset
     if (watchdog_caused_reboot()) {
         printf("WARNING: System recovered from watchdog reset\n");
     }
     watchdog_enable(WATCHDOG_TIMEOUT_MS, true);
+    printf("Watchdog enabled (%d ms timeout)\n", WATCHDOG_TIMEOUT_MS);
 
     // Initialize EEPROM first (required for wireless config)
     eeprom_init();
