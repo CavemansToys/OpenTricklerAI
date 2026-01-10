@@ -44,8 +44,13 @@ jobs:
       run: |
         mkdir build-blink
         cd build-blink
-        cmake -f ../CMakeLists_blink_test.txt .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w
+        # Temporarily use blink test CMakeLists
+        cp ../CMakeLists.txt ../CMakeLists.txt.backup
+        cp ../CMakeLists_blink_test.txt ../CMakeLists.txt
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w
         make -j$(nproc)
+        # Restore original CMakeLists
+        mv ../CMakeLists.txt.backup ../CMakeLists.txt
 
     - name: Build MINIMAL test mode (no OTA, no partitions)
       run: |
