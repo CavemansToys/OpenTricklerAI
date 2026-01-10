@@ -44,14 +44,15 @@
 
 // Early initialization task - runs ALL init after FreeRTOS starts
 void early_init_task(void *pvParameters) {
+// Early initialization task - runs ALL init after FreeRTOS starts
+void early_init_task(void *pvParameters) {
     (void)pvParameters;
 
     printf("Early init task starting...\n");
     
     // Initialize EEPROM (uses FreeRTOS mutex)
     eeprom_init();
-    printf("EEPROM initialized
-");
+    printf("EEPROM initialized\n");
 
     // Initialize cyw43 for LED and WiFi
     if (cyw43_arch_init() == 0) {
@@ -87,7 +88,6 @@ void early_init_task(void *pvParameters) {
     printf("Early init complete\n");
     vTaskDelete(NULL);
 }
-
 #ifdef OTA_TEST_MODE
 // Simple test task for OTA testing on bare board
 void ota_test_task(void *pvParameters) {
