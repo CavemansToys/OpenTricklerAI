@@ -218,6 +218,10 @@ SECTIONS
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed")
 
-    ASSERT( __binary_info_header_end - __logical_binary_start <= 256, "Binary info must be in first 256 bytes of the binary")
+    /* DISABLED: Binary info ASSERT not compatible with large bootloader/application binaries
+     * See: https://vanhunteradams.com/Pico/Bootloader/Bootloader.html
+     * See: https://forums.raspberrypi.com/viewtopic.php?t=318092
+     */
+    /* ASSERT( __binary_info_header_end - __logical_binary_start <= 256, "Binary info must be in first 256 bytes of the binary") */
     /* todo assert on extra code */
 }

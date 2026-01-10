@@ -227,5 +227,10 @@ SECTIONS
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed")
 
-    ASSERT( __binary_info_header_end - __logical_binary_start <= 256, "Binary info must be in first 256 bytes of the binary")
+    /* DISABLED: Binary info ASSERT not compatible with OTA application binaries
+     * OTA firmware binaries are too large (556KB) for binary info in first 256 bytes
+     * See: https://vanhunteradams.com/Pico/Bootloader/Bootloader.html
+     * See: https://github.com/JZimnol/pico_fota_bootloader
+     */
+    /* ASSERT( __binary_info_header_end - __logical_binary_start <= 256, "Binary info must be in first 256 bytes of the binary") */
 }
