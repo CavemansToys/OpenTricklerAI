@@ -40,6 +40,13 @@ jobs:
         git submodule update --init --depth 1 lib/mbedtls
         echo "SDK ready"
 
+    - name: Build BLINK-ONLY test (absolute minimal - just LED blink)
+      run: |
+        mkdir build-blink
+        cd build-blink
+        cmake -f ../CMakeLists_blink_test.txt .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w
+        make -j$(nproc)
+
     - name: Build MINIMAL test mode (no OTA, no partitions)
       run: |
         mkdir build-minimal
@@ -64,6 +71,15 @@ jobs:
         cd build-production
         cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=OFF
         make -j$(nproc)
+
+    - name: Upload BLINK-ONLY test firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-pico2w-rp2350-BLINK-ONLY
+        path: |
+          build-blink/blink_test.uf2
+          build-blink/blink_test.bin
+          build-blink/blink_test.elf
 
     - name: Upload MINIMAL test firmware
       uses: actions/upload-artifact@v4

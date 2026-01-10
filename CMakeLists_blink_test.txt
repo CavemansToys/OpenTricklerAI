@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.25)
+
+set(PROJECT_NAME "BlinkTest")
+set(TARGET_NAME "blink_test")
+
+# Set Pico SDK path
+set(ENV{PICO_SDK_PATH} "${CMAKE_SOURCE_DIR}/library/pico-sdk")
+set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
+
+# Disable binary info
+add_compile_definitions(PICO_NO_BINARY_INFO=1)
+add_compile_options(-DPICO_NO_BINARY_INFO=1)
+
+# Include Pico SDK
+include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
+
+project(${PROJECT_NAME}
+        LANGUAGES C CXX ASM
+        DESCRIPTION "Minimal LED Blink Test for Pico 2W RP2350")
+
+pico_sdk_init()
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+set(FREERTOS_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/library/FreeRTOS-Kernel")
+set(PICO_BOARD_HEADER_DIRS "${CMAKE_SOURCE_DIR}/targets")
+
+# Pull in FreeRTOS for RP2350
+include(${FREERTOS_SRC_DIRECTORY}/portable/ThirdParty/GCC/RP2350_ARM_NTZ/FreeRTOS_Kernel_import.cmake)
+
+# Create executable
+add_executable(${TARGET_NAME}
+    src/app_blink_test.cpp
+    src/FreeRTOSConfig.h
+)
+
+# Include FreeRTOS config directory
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/targets)
+
+# Link libraries
+target_link_libraries(${TARGET_NAME}
+    pico_stdlib
+    FreeRTOS-Kernel
+    FreeRTOS-Kernel-Heap4
+    pico_cyw43_arch_lwip_sys_freertos
+)
+
+# Disable binary info
+target_compile_definitions(${TARGET_NAME} PRIVATE PICO_NO_BINARY_INFO=1)
+
+# Enable USB serial
+pico_enable_stdio_usb(${TARGET_NAME} 1)
+pico_enable_stdio_uart(${TARGET_NAME} 0)
+
+# Generate UF2
+pico_add_extra_outputs(${TARGET_NAME})
