@@ -45,8 +45,7 @@ jobs:
         cd blink-test
         mkdir build
         cd build
-        export PICO_SDK_PATH=../../library/pico-sdk
-        cmake .. -DPICO_BOARD=pico2_w -DPICO_PLATFORM=rp2350
+        cmake .. -DPICO_SDK_PATH=$PWD/../../library/pico-sdk -DPICO_BOARD=pico2_w -DPICO_PLATFORM=rp2350
         make -j$(nproc)
 
     - name: Build MINIMAL test mode (no OTA, no partitions)
