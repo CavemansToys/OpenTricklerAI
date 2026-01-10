@@ -25,7 +25,7 @@ add_executable(blink
 
 target_link_libraries(blink
     pico_stdlib
-    pico_cyw43_arch_none
+    pico_cyw43_arch_lwip_poll
 )
 
 pico_add_extra_outputs(blink)
