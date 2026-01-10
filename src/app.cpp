@@ -100,6 +100,7 @@ int main()
 
     // Initialize EEPROM first (required for wireless config)
     eeprom_init();
+    printf("EEPROM initialized\n");
 
 #ifndef OTA_TEST_MODE
     // Initialize Neopixel RGB on the mini 12864 board
@@ -107,18 +108,25 @@ int main()
 
     // Configure other functions from mini 12864 display
     mini_12864_module_init();
+
+    // Initialize wireless settings
+    wireless_init();
 #else
     printf("\n");
     printf("==============================================\n");
     printf("OTA TEST MODE - Bare Board Testing\n");
     printf("==============================================\n");
     printf("Hardware peripherals disabled for testing\n");
-    printf("Only WiFi and OTA system active\n");
+    printf("WiFi initialization SKIPPED to allow USB serial\n");
+    printf("USB serial conflicts with lwIP/WiFi stack\n");
     printf("\n");
-#endif
+    printf("LED should be SOLID ON\n");
+    printf("\n");
 
-    // Initialize wireless settings
-    wireless_init();
+    // Skip WiFi init in test mode - it kills USB serial
+    // Just blink the onboard LED to show we're alive
+    printf("Blinking LED every 1 second...\n");
+#endif
 
 #ifndef OTA_TEST_MODE
     // Load config for motors
