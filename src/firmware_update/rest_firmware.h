@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include "lwip/apps/fs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * REST API Endpoints for Firmware Operations
  *
@@ -85,5 +89,9 @@ bool http_rest_firmware_cancel(struct fs_file *file, int num_params,
  */
 bool http_rest_firmware_download(struct fs_file *file, int num_params,
                                   char *params[], char *values[]);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // REST_FIRMWARE_H

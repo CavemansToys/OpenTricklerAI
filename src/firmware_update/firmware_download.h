@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * HTTP URL Firmware Download
  *
@@ -104,5 +108,9 @@ bool firmware_download_is_complete(void);
  * @return true if error occurred
  */
 bool firmware_download_has_error(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FIRMWARE_DOWNLOAD_H

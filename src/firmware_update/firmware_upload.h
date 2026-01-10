@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * HTTP POST Firmware Upload Handler
  *
@@ -36,5 +40,9 @@ bool firmware_upload_init(void);
  * @return URI string for firmware upload endpoint
  */
 const char *firmware_upload_get_uri(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FIRMWARE_UPLOAD_H
