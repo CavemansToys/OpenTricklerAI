@@ -40,6 +40,17 @@ jobs:
         git submodule update --init --depth 1 lib/mbedtls
         echo "SDK ready"
 
+    - name: Build MINIMAL test mode (no OTA, no partitions)
+      run: |
+        mkdir build-minimal
+        cd build-minimal
+        # Temporarily move partition table so it's not embedded
+        mv ../partition_table.json ../partition_table.json.bak || true
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=ON
+        make -j$(nproc)
+        # Restore partition table
+        mv ../partition_table.json.bak ../partition_table.json || true
+
     - name: Build TEST mode (web-only, no hardware)
       run: |
         mkdir build-test
@@ -53,6 +64,15 @@ jobs:
         cd build-production
         cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=OFF
         make -j$(nproc)
+
+    - name: Upload MINIMAL test firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-pico2w-rp2350-MINIMAL
+        path: |
+          build-minimal/app.uf2
+          build-minimal/app.bin
+          build-minimal/app.elf
 
     - name: Upload TEST mode firmware
       uses: actions/upload-artifact@v4
