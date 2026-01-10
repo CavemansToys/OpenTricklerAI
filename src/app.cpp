@@ -47,6 +47,11 @@ void early_init_task(void *pvParameters) {
     (void)pvParameters;
 
     printf("Early init task starting...\n");
+    
+    // Initialize EEPROM (uses FreeRTOS mutex)
+    eeprom_init();
+    printf("EEPROM initialized
+");
 
     // Initialize cyw43 for LED and WiFi
     if (cyw43_arch_init() == 0) {
@@ -141,8 +146,6 @@ int main()
     printf("Watchdog enabled (%d ms timeout)\n", WATCHDOG_TIMEOUT_MS);
 
     // Initialize EEPROM first (required for wireless config)
-    eeprom_init();
-    printf("EEPROM initialized\n");
 
 #ifndef OTA_TEST_MODE
     // Initialize Neopixel RGB on the mini 12864 board
