@@ -71,14 +71,14 @@ endif()
 #===============================================================================
 option(BUILD_OTA_BOOTLOADER "Build OTA bootloader" ON)
 option(USE_OTA_LINKER_SCRIPT "Use OTA application linker script (Bank A)" ON)
-option(OTA_TEST_MODE "Build minimal OTA test firmware (no hardware peripherals)" OFF)
+option(WIFI_TEST_MODE "Build WiFi test firmware (no hardware peripherals)" OFF)
 
 message("==============================================")
 message("OTA Firmware Update Configuration")
 message("==============================================")
 message("BUILD_OTA_BOOTLOADER: ${BUILD_OTA_BOOTLOADER}")
 message("USE_OTA_LINKER_SCRIPT: ${USE_OTA_LINKER_SCRIPT}")
-message("OTA_TEST_MODE: ${OTA_TEST_MODE}")
+message("WIFI_TEST_MODE: ${WIFI_TEST_MODE}")
 
 # Build bootloader if requested
 if(BUILD_OTA_BOOTLOADER)
@@ -86,10 +86,10 @@ if(BUILD_OTA_BOOTLOADER)
     add_subdirectory(${SRC_DIRECTORY}/bootloader)
 endif()
 
-# Add OTA_TEST_MODE preprocessor definition if enabled
-if(OTA_TEST_MODE)
+# Add WIFI_TEST_MODE preprocessor definition if enabled
+if(WIFI_TEST_MODE)
     message(STATUS "OTA Test Mode ENABLED - Hardware peripherals will be disabled")
-    add_compile_definitions(OTA_TEST_MODE)
+    add_compile_definitions(WIFI_TEST_MODE)
 endif()
 
 message("==============================================")
