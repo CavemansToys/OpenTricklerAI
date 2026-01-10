@@ -57,6 +57,9 @@ void early_blink_task(void *pvParameters) {
         }
         // Mark cyw43 as initialized so wireless_init() doesn't re-initialize
         wireless_mark_cyw43_initialized();
+
+        // Now initialize wireless (must be after FreeRTOS scheduler starts)
+        wireless_init();
     }
 
     // Task complete - delete self
@@ -131,8 +134,6 @@ int main()
     // Configure other functions from mini 12864 display
     mini_12864_module_init();
 
-    // Initialize wireless settings
-    wireless_init();
 #else
     printf("\n");
     printf("==============================================\n");
@@ -144,9 +145,6 @@ int main()
     printf("- SOS pattern (...---...): Error occurred\n");
     printf("\n");
 
-    // Initialize WiFi (this also initializes LED control)
-    printf("Initializing WiFi...\n");
-    wireless_init();
 #endif
 
 #ifndef OTA_TEST_MODE
