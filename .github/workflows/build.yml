@@ -2,9 +2,9 @@ name: Build Firmware (Pico 2W - RP2350)
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, rp2350-enhanced ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, rp2350-enhanced ]
   workflow_dispatch:
 
 jobs:
