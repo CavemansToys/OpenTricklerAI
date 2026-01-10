@@ -299,7 +299,6 @@ bool http_rest_profile_config(struct fs_file *file, int num_params, char *params
                           current_profile->ai_tuning_enabled ? "true" : "false");
 
         CHECK_SNPRINTF_OVERFLOW(len, sizeof(buf), file);
-    }
 
     size_t response_len = strlen(buf);
     file->data = buf;
