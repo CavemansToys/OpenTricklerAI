@@ -40,18 +40,34 @@ jobs:
         git submodule update --init --depth 1 lib/mbedtls
         echo "SDK ready"
 
-    - name: Build for Pico 2W (RP2350 - Web-only test mode with partition OTA)
+    - name: Build TEST mode (web-only, no hardware)
       run: |
-        mkdir build
-        cd build
+        mkdir build-test
+        cd build-test
         cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=ON
         make -j$(nproc)
 
-    - name: Upload firmware artifacts
+    - name: Build PRODUCTION mode (full hardware support)
+      run: |
+        mkdir build-production
+        cd build-production
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=OFF
+        make -j$(nproc)
+
+    - name: Upload TEST mode firmware
       uses: actions/upload-artifact@v4
       with:
-        name: firmware-pico2w-rp2350
+        name: firmware-pico2w-rp2350-TEST
         path: |
-          build/app.uf2
-          build/app.bin
-          build/app.elf
+          build-test/app.uf2
+          build-test/app.bin
+          build-test/app.elf
+
+    - name: Upload PRODUCTION mode firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-pico2w-rp2350-PRODUCTION
+        path: |
+          build-production/app.uf2
+          build-production/app.bin
+          build-production/app.elf
