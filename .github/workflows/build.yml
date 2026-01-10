@@ -49,9 +49,9 @@ jobs:
 
     - name: Create combined image for Pico 2W
       run: |
-        python3 create_combined_image.py \
-          build/src/bootloader/bootloader.uf2 \
-          build/app.uf2 \
+        python3 create_combined_bin.py \
+          build/src/bootloader/bootloader.bin \
+          build/app.bin \
           build/combined.uf2
 
     - name: Upload firmware artifacts
@@ -77,9 +77,9 @@ jobs:
 
     - name: Create combined image for Pico W
       run: |
-        python3 create_combined_image.py \
-          build/src/bootloader/bootloader.uf2 \
-          build/app.uf2 \
+        python3 create_combined_bin.py \
+          build/src/bootloader/bootloader.bin \
+          build/app.bin \
           build/combined.uf2
 
     - name: Upload firmware artifacts (Pico W)
