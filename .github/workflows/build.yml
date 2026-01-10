@@ -54,7 +54,7 @@ jobs:
         cd build-minimal
         # Temporarily move partition table so it's not embedded
         mv ../partition_table.json ../partition_table.json.bak || true
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=ON
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=ON
         make -j$(nproc)
         # Restore partition table
         mv ../partition_table.json.bak ../partition_table.json || true
@@ -63,14 +63,14 @@ jobs:
       run: |
         mkdir build-test
         cd build-test
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=ON
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=ON
         make -j$(nproc)
 
     - name: Build PRODUCTION mode (full hardware support)
       run: |
         mkdir build-production
         cd build-production
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=OFF
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=OFF
         make -j$(nproc)
 
     - name: Upload BLINK-ONLY test firmware
