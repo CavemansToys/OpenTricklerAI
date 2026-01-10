@@ -40,17 +40,14 @@ jobs:
         git submodule update --init --depth 1 lib/mbedtls
         echo "SDK ready"
 
-    - name: Build BLINK-ONLY test (absolute minimal - just LED blink)
+    - name: Build BLINK-ONLY test (standalone clean example)
       run: |
-        mkdir build-blink
-        cd build-blink
-        # Temporarily use blink test CMakeLists
-        cp ../CMakeLists.txt ../CMakeLists.txt.backup
-        cp ../CMakeLists_blink_test.txt ../CMakeLists.txt
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w
+        cd blink-test
+        mkdir build
+        cd build
+        export PICO_SDK_PATH=../../library/pico-sdk
+        cmake .. -DPICO_BOARD=pico2_w -DPICO_PLATFORM=rp2350
         make -j$(nproc)
-        # Restore original CMakeLists
-        mv ../CMakeLists.txt.backup ../CMakeLists.txt
 
     - name: Build MINIMAL test mode (no OTA, no partitions)
       run: |
@@ -82,9 +79,9 @@ jobs:
       with:
         name: firmware-pico2w-rp2350-BLINK-ONLY
         path: |
-          build-blink/blink_test.uf2
-          build-blink/blink_test.bin
-          build-blink/blink_test.elf
+          blink-test/build/blink.uf2
+          blink-test/build/blink.bin
+          blink-test/build/blink.elf
 
     - name: Upload MINIMAL test firmware
       uses: actions/upload-artifact@v4
