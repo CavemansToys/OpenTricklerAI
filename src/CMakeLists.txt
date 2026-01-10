@@ -113,3 +113,15 @@ target_sources(${TARGET_NAME} PRIVATE
 
 message(STATUS "AI PID auto-tuning module added")
 #===============================================================================
+
+
+#===============================================================================
+# RP2350 OTA: Embed Partition Table
+#===============================================================================
+if(DEFINED PICO_PARTITION_TABLE_JSON AND EXISTS ${PICO_PARTITION_TABLE_JSON})
+    message(STATUS "RP2350 OTA: Embedding partition table in ${TARGET_NAME}")
+    pico_embed_pt_in_binary(${TARGET_NAME} ${PICO_PARTITION_TABLE_JSON})
+else()
+    message(STATUS "RP2350 OTA: No partition table to embed")
+endif()
+#===============================================================================

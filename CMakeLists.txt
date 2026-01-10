@@ -56,6 +56,16 @@ SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffp-contract=fast")
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffp-contract=fast")
 message(STATUS "RP2350 Enhanced: FMA optimization enabled (-ffp-contract=fast)")
 
+# RP2350 OTA: Embed partition table for A/B partition switching
+# Uses ROM bootloader instead of custom bootloader
+set(PICO_PARTITION_TABLE_JSON "${CMAKE_SOURCE_DIR}/partition_table.json")
+if(EXISTS ${PICO_PARTITION_TABLE_JSON})
+    message(STATUS "RP2350 OTA: Embedding partition table from ${PICO_PARTITION_TABLE_JSON}")
+    set(PICO_EMBED_PARTITION_TABLE ON)
+else()
+    message(WARNING "RP2350 OTA: Partition table not found, OTA disabled")
+endif()
+
 #===============================================================================
 # Dual-Bank OTA Configuration
 #===============================================================================

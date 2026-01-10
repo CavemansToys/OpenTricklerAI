@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "unpartitioned": {
+    "families": ["absolute"],
+    "permissions": {
+      "secure": "rw",
+      "nonsecure": "rw",
+      "bootloader": "rw"
+    }
+  },
+  "partitions": [
+    {
+      "name": "A",
+      "id": 0,
+      "start": "0x10010000",
+      "size": "896K",
+      "families": ["absolute"],
+      "permissions": {
+        "secure": "rw",
+        "nonsecure": "rw",
+        "bootloader": "rw"
+      },
+      "flags": ["A", "UF2"]
+    },
+    {
+      "name": "B",
+      "id": 1,
+      "start": "0x100F0000",
+      "size": "896K",
+      "families": ["absolute"],
+      "permissions": {
+        "secure": "rw",
+        "nonsecure": "rw",
+        "bootloader": "rw"
+      },
+      "flags": ["B", "UF2"]
+    }
+  ]
+}
