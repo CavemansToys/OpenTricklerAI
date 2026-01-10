@@ -42,6 +42,27 @@
 // Watchdog timer configuration
 #define WATCHDOG_TIMEOUT_MS 8000  // 8 second timeout
 
+// Early board alive LED blink task (runs first before other tasks)
+void early_blink_task(void *pvParameters) {
+    (void)pvParameters;
+
+    // Initialize cyw43 for LED control (FreeRTOS is now running)
+    if (cyw43_arch_init() == 0) {
+        // Blink 5 times rapidly to show "board is alive"
+        for (int i = 0; i < 5; i++) {
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);  // LED on
+            vTaskDelay(pdMS_TO_TICKS(100));
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);  // LED off
+            vTaskDelay(pdMS_TO_TICKS(100));
+        }
+        // Mark cyw43 as initialized so wireless_init() doesn't re-initialize
+        wireless_mark_cyw43_initialized();
+    }
+
+    // Task complete - delete self
+    vTaskDelete(NULL);
+}
+
 #ifdef OTA_TEST_MODE
 // Simple test task for OTA testing on bare board
 void ota_test_task(void *pvParameters) {
@@ -84,23 +105,6 @@ int main()
     // CRITICAL: Wait for USB serial to enumerate before printing
     // Without this delay, early printf() output is lost
     sleep_ms(2000);
-
-    // ==================================================================
-    // BOARD ALIVE: Early LED blink to confirm firmware is running
-    // This happens BEFORE any other initialization
-    // ==================================================================
-    if (cyw43_arch_init() == 0) {
-        // Blink 5 times rapidly to show "board is alive"
-        for (int i = 0; i < 5; i++) {
-            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);  // LED on
-            sleep_ms(100);
-            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);  // LED off
-            sleep_ms(100);
-        }
-        // Mark cyw43 as initialized so wireless_init() doesn't re-initialize
-        wireless_mark_cyw43_initialized();
-    }
-    // ==================================================================
 
     printf("\n\n");
     printf("==========================================\n");
@@ -224,6 +228,10 @@ int main()
 
     printf("==============================================\n\n");
     //===========================================================================
+
+    // Start early blink task (highest priority, runs first, then exits)
+    printf("Starting early blink task...\n");
+    xTaskCreate(early_blink_task, "Early Blink", 512, NULL, 10, NULL);
 
 #ifdef OTA_TEST_MODE
     // Start OTA test task for bare board testing
