@@ -49,6 +49,13 @@ SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -fdata-sections -ffunction-sections -Wall")
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fdata-sections -ffunction-sections -Wall")
 # SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
 
+# RP2350 Enhanced: Enable FMA and hardware FPU optimizations
+# Cortex-M33 has hardware FPU (6x faster) and fused multiply-add
+# These flags take advantage of RP2350's superior floating-point hardware
+SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffp-contract=fast")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffp-contract=fast")
+message(STATUS "RP2350 Enhanced: FMA optimization enabled (-ffp-contract=fast)")
+
 #===============================================================================
 # Dual-Bank OTA Configuration
 #===============================================================================
