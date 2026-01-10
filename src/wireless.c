@@ -49,6 +49,14 @@ typedef struct {
     wireless_state_t current_wireless_state;
 } wireless_config_t;
 
+// Track if cyw43 was already initialized (e.g., early in main() for LED blink)
+static bool cyw43_already_initialized = false;
+
+// Function to mark cyw43 as already initialized (called from main() after early init)
+void wireless_mark_cyw43_initialized(void) {
+    cyw43_already_initialized = true;
+}
+
 
 static wireless_config_t wireless_config;
 static QueueHandle_t wireless_ctrl_queue;
@@ -268,17 +276,23 @@ void wireless_task(void *p) {
     wireless_config.current_wireless_state = WIRELESS_STATE_NOT_INITIALIZED;
     wireless_ctrl_queue = xQueueCreate(5, sizeof(wireless_ctrl_t));
 
-    printf("Initializing CYW43 WiFi chip...\n");
-    if (cyw43_arch_init()) {
-        printf("ERROR: CYW43 WiFi initialization failed!\n");
-        printf("WiFi will not be available.\n");
-        printf("This is non-fatal - system will continue running.\n");
-        // Don't exit - let the system continue without WiFi
-        // Just suspend this task instead of crashing the entire program
-        vTaskSuspend(NULL);
-        return;
+    // Check if cyw43 was already initialized (e.g., early in main() for LED blink)
+    if (!cyw43_already_initialized) {
+        printf("Initializing CYW43 WiFi chip...\n");
+        if (cyw43_arch_init()) {
+            printf("ERROR: CYW43 WiFi initialization failed!\n");
+            printf("WiFi will not be available.\n");
+            printf("This is non-fatal - system will continue running.\n");
+            // Don't exit - let the system continue without WiFi
+            // Just suspend this task instead of crashing the entire program
+            vTaskSuspend(NULL);
+            return;
+        }
+        printf("CYW43 WiFi chip initialized successfully\n");
+        cyw43_already_initialized = true;
+    } else {
+        printf("CYW43 already initialized (skipping re-init)\n");
     }
-    printf("CYW43 WiFi chip initialized successfully\n");
 
     wireless_config.current_wireless_state = WIRELESS_STATE_IDLE;
 

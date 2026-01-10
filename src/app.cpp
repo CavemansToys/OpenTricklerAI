@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "pico/stdlib.h"
+#include "pico/cyw43_arch.h"
 #include "hardware/watchdog.h"
 
 #include "FreeRTOSConfig.h"
@@ -83,6 +84,23 @@ int main()
     // CRITICAL: Wait for USB serial to enumerate before printing
     // Without this delay, early printf() output is lost
     sleep_ms(2000);
+
+    // ==================================================================
+    // BOARD ALIVE: Early LED blink to confirm firmware is running
+    // This happens BEFORE any other initialization
+    // ==================================================================
+    if (cyw43_arch_init() == 0) {
+        // Blink 5 times rapidly to show "board is alive"
+        for (int i = 0; i < 5; i++) {
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);  // LED on
+            sleep_ms(100);
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);  // LED off
+            sleep_ms(100);
+        }
+        // Mark cyw43 as initialized so wireless_init() doesn't re-initialize
+        wireless_mark_cyw43_initialized();
+    }
+    // ==================================================================
 
     printf("\n\n");
     printf("==========================================\n");

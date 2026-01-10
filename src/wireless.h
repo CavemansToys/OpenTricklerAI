@@ -37,6 +37,7 @@ void wireless_task(void *);
 bool wireless_init(void);
 bool wireless_config_save();
 uint8_t wireless_view_wifi_info(void);
+void wireless_mark_cyw43_initialized(void);
 
 bool http_rest_wireless_config(struct fs_file *file, int num_params, char *params[], char *values[]);
 
