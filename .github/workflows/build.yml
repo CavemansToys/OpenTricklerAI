@@ -1,0 +1,57 @@
+name: Build Firmware (Pico 2W - RP2350)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Clone all dependencies
+      run: |
+        echo "Cloning project dependencies..."
+        git clone --depth 1 https://github.com/raspberrypi/FreeRTOS-Kernel.git library/FreeRTOS-Kernel
+        git clone --depth 1 https://github.com/olikraus/u8g2.git library/u8g2
+        git clone --depth 1 https://github.com/terjeio/Trinamic-library.git library/Trinamic-library
+
+    - name: Install ARM toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+
+    - name: Setup Pico SDK with RP2350 support
+      run: |
+        echo "Cloning latest Pico SDK..."
+        rm -rf library/pico-sdk
+        git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
+        cd library/pico-sdk
+        echo "Initializing essential SDK submodules..."
+        git submodule update --init --depth 1 lib/btstack
+        git submodule update --init --depth 1 lib/cyw43-driver
+        git submodule update --init --depth 1 lib/lwip
+        git submodule update --init --depth 1 lib/mbedtls
+        echo "SDK ready"
+
+    - name: Build for Pico 2W (RP2350 - Standard build, NO OTA)
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DOTA_TEST_MODE=OFF
+        make -j$(nproc)
+
+    - name: Upload firmware artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-pico2w-rp2350
+        path: |
+          build/app.uf2
+          build/app.bin
+          build/app.elf
