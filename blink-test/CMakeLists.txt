@@ -25,8 +25,12 @@ add_executable(blink
 
 target_link_libraries(blink
     pico_stdlib
-    pico_cyw43_arch_lwip_poll
 )
+
+# Conditionally link CYW43 driver for Pico W/2W boards
+if (PICO_CYW43_SUPPORTED)
+    target_link_libraries(blink pico_cyw43_arch_none)
+endif()
 
 pico_add_extra_outputs(blink)
 
