@@ -87,10 +87,10 @@ int main()
     }
     watchdog_enable(WATCHDOG_TIMEOUT_MS, true);
 
-#ifndef OTA_TEST_MODE
-    // Initialize EEPROM first
+    // Initialize EEPROM first (required for wireless config)
     eeprom_init();
 
+#ifndef OTA_TEST_MODE
     // Initialize Neopixel RGB on the mini 12864 board
     neopixel_led_init();
 
