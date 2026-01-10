@@ -42,27 +42,44 @@
 // Watchdog timer configuration
 #define WATCHDOG_TIMEOUT_MS 8000  // 8 second timeout
 
-// Early board alive LED blink task (runs first before other tasks)
-void early_blink_task(void *pvParameters) {
+// Early initialization task - runs ALL init after FreeRTOS starts
+void early_init_task(void *pvParameters) {
     (void)pvParameters;
 
-    // Initialize cyw43 for LED control (FreeRTOS is now running)
+    printf("Early init task starting...\n");
+
+    // Initialize cyw43 for LED and WiFi
     if (cyw43_arch_init() == 0) {
-        // Blink 5 times rapidly to show "board is alive"
+        printf("WiFi chip initialized\n");
+        // Blink 5 times to show alive
         for (int i = 0; i < 5; i++) {
-            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);  // LED on
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
             vTaskDelay(pdMS_TO_TICKS(100));
-            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);  // LED off
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
             vTaskDelay(pdMS_TO_TICKS(100));
         }
-        // Mark cyw43 as initialized so wireless_init() doesn't re-initialize
         wireless_mark_cyw43_initialized();
-
-        // Now initialize wireless (must be after FreeRTOS scheduler starts)
-        wireless_init();
     }
 
-    // Task complete - delete self
+    // Initialize wireless
+    printf("Initializing wireless...\n");
+    wireless_init();
+
+    // Initialize OTA system
+    printf("Initializing OTA firmware system...\n");
+    if (!firmware_manager_init()) {
+        printf("ERROR: Failed to initialize firmware manager\n");
+    } else {
+        firmware_upload_init();
+        firmware_download_init();
+        rest_firmware_init();
+        ai_tuning_init();
+        rest_ai_tuning_init();
+        firmware_manager_confirm_boot();
+        printf("OTA system initialized\n");
+    }
+
+    printf("Early init complete\n");
     vTaskDelete(NULL);
 }
 
@@ -167,76 +184,16 @@ int main()
     servo_gate_init();
 #endif
 
-    //===========================================================================
-    // OTA Firmware Update System
-    //===========================================================================
-    printf("\n==============================================\n");
-    printf("OTA Firmware Update System\n");
-    printf("==============================================\n");
 
-    // Initialize firmware manager
-    if (!firmware_manager_init()) {
-        printf("ERROR: Failed to initialize firmware manager\n");
-    } else {
-        // Check if rollback occurred
-        if (firmware_manager_did_rollback_occur()) {
-            printf("WARNING: *** FIRMWARE ROLLBACK OCCURRED ***\n");
-            printf("The previous firmware failed to boot properly.\n");
-            printf("System automatically rolled back to this firmware.\n");
-            printf("Please check logs for errors before updating again.\n");
-
-            // Clear rollback flag after displaying warning
-            firmware_manager_clear_rollback_flag();
-        }
-
-        // Get current bank info
-        firmware_bank_t current_bank = firmware_manager_get_current_bank();
-        firmware_info_t bank_info;
-        if (firmware_manager_get_bank_info(current_bank, &bank_info)) {
-            printf("Running from: Bank %s\n", (current_bank == BANK_A) ? "A" : "B");
-            printf("Version: %s\n", bank_info.version);
-            printf("Size: %lu bytes\n", bank_info.size);
-            printf("CRC32: 0x%08lx\n", bank_info.crc32);
-        }
-
-        // Initialize firmware upload handler
-        firmware_upload_init();
-
-        // Initialize firmware download handler
-        firmware_download_init();
-
-        // Initialize REST API endpoints
-        rest_firmware_init();
-
-        // Initialize AI tuning system
-        ai_tuning_init();
-
-        // Initialize AI tuning REST API endpoints
-        rest_ai_tuning_init();
-
-        // Confirm successful boot (resets boot counter)
-        // This must be called after all critical initialization is complete
-        printf("Confirming successful boot...\n");
-        if (firmware_manager_confirm_boot()) {
-            printf("Boot confirmed - boot counter reset\n");
-        } else {
-            printf("WARNING: Failed to confirm boot\n");
-        }
-    }
-
-    printf("==============================================\n\n");
-    //===========================================================================
-
-    // Start early blink task (highest priority, runs first, then exits)
-    printf("Starting early blink task...\n");
-    xTaskCreate(early_blink_task, "Early Blink", 512, NULL, 10, NULL);
+    // Start early init task (highest priority, runs first)
+    printf("Starting FreeRTOS scheduler...\n");
+    xTaskCreate(early_init_task, "Early Init", 2048, NULL, 10, NULL);
 
 #ifdef OTA_TEST_MODE
     // Start OTA test task for bare board testing
-    printf("Starting OTA test task...\n");
     xTaskCreate(ota_test_task, "OTA Test", 2048, NULL, 5, NULL);
 #else
-    // Start menu task (highest priority task should update watchdog)
+    // Start menu task
     xTaskCreate(menu_task, "Menu Task", 1024, NULL, 6, NULL);
 #endif
 
