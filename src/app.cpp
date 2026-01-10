@@ -114,18 +114,17 @@ int main()
 #else
     printf("\n");
     printf("==============================================\n");
-    printf("OTA TEST MODE - Bare Board Testing\n");
+    printf("OTA TEST MODE - WiFi Testing\n");
     printf("==============================================\n");
-    printf("Hardware peripherals disabled for testing\n");
-    printf("WiFi initialization SKIPPED to allow USB serial\n");
-    printf("USB serial conflicts with lwIP/WiFi stack\n");
-    printf("\n");
-    printf("LED should be SOLID ON\n");
+    printf("LED Patterns:\n");
+    printf("- Rapid blink (10x): WiFi chip initialized\n");
+    printf("- Slow blink (1s): WiFi AP mode active\n");
+    printf("- SOS pattern (...---...): Error occurred\n");
     printf("\n");
 
-    // Skip WiFi init in test mode - it kills USB serial
-    // Just blink the onboard LED to show we're alive
-    printf("Blinking LED every 1 second...\n");
+    // Initialize WiFi (this also initializes LED control)
+    printf("Initializing WiFi...\n");
+    wireless_init();
 #endif
 
 #ifndef OTA_TEST_MODE
