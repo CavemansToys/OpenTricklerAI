@@ -29,7 +29,7 @@ extern char second_line_buffer[32];
 
 bool access_point_mode_start() {
     char ap_ssid[17] = "";
-    char ap_password[] = "opentrickler";
+    char ap_password[] = "trickler";
     char id[4];
 
     eeprom_get_board_id((char **) &id, sizeof(id));
