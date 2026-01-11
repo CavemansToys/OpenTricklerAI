@@ -32,14 +32,10 @@ bool access_point_mode_start() {
     char ap_password[] = "opentrickler";
     char id[4];
 
-    printf("AP Mode: Getting board ID...\n");
     eeprom_get_board_id((char **) &id, sizeof(id));
     memset(ap_ssid, 0x0, sizeof(ap_ssid));
     snprintf(ap_ssid, sizeof(ap_ssid), "OpenTrickler%s", id);
-    printf("AP Mode: SSID='%s', Password='%s'\n", ap_ssid, ap_password);
-    printf("AP Mode: Enabling AP mode...\n");
     cyw43_arch_enable_ap_mode(ap_ssid, ap_password, CYW43_AUTH_WPA2_AES_PSK);
-    printf("AP Mode: AP mode enabled\n");
 
     // Initialize IP
     IP4_ADDR(ip_2_ip4(&gw), 192, 168, 4, 1);  

@@ -261,20 +261,15 @@ void led_interface_task(void *p) {
 void wireless_task(void *p) {
     static TaskHandle_t led_interface_task_handler = NULL;
 
-    printf("wireless_task: Starting...\n");
-
     memset(first_line_buffer, 0x0, sizeof(first_line_buffer));
     memset(second_line_buffer, 0x0, sizeof(second_line_buffer));
 
     wireless_config.current_wireless_state = WIRELESS_STATE_NOT_INITIALIZED;
     wireless_ctrl_queue = xQueueCreate(5, sizeof(wireless_ctrl_t));
 
-    printf("wireless_task: Initializing CYW43...\n");
     if (cyw43_arch_init()) {
-        printf("ERROR: CYW43 init failed!\n");
         exit(-1);
     }
-    printf("wireless_task: CYW43 initialized successfully\n");
 
     wireless_config.current_wireless_state = WIRELESS_STATE_IDLE;
 
@@ -328,12 +323,10 @@ void wireless_task(void *p) {
 
     // If not configured, or failed to connect existing wifi then start the AP mode
     if (wireless_config.current_wireless_state == WIRELESS_STATE_IDLE) {
-        printf("wireless_task: Starting AP mode...\n");
         // If previous configured, then start STA mode by default
         wireless_config.current_wireless_state = WIRELESS_STATE_AP_MODE_INIT;
         access_point_mode_start();
         wireless_config.current_wireless_state = WIRELESS_STATE_AP_MODE_LISTEN;
-        printf("wireless_task: AP mode started\n");
     }
 
     // Initialize REST endpoints
