@@ -1,0 +1,71 @@
+name: Auto Release Build
+
+run-name: Build based on ${{ github.ref }} by @${{ github.actor }}
+
+
+on:
+  push:
+    branches: [ "main", "v1.16-ai" ]
+  pull_request:
+    branches: [ "main", "v1.16-ai" ]
+  workflow_dispatch:
+
+# env:
+#   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+#   PICO_BOARD: pico_w
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with: 
+        fetch-depth: 0          # Fetch all branches and tags
+        submodules: recursive   # Automatically pull all submodules
+      
+    - name: Install Build Dependencies
+      run: | 
+        sudo apt-get update
+        sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential libstdc++-arm-none-eabi-newlib python3
+
+    # Build Pico2 W support package into build_pico2_w
+    - name: Build Pico2 W Package
+      run: |
+        cmake -B ${{github.workspace}}/build_pico2_w -DCMAKE_BUILD_TYPE=Debug -DPICO_BOARD=pico2_w
+        cmake --build ${{github.workspace}}/build_pico2_w --config Debug
+
+    - name: Archive Debug Artifact
+      uses: actions/upload-artifact@v4
+      with: 
+        name: pico2_w_package
+        path: |
+          src/generated/version.c  
+          build_pico2_w/*.bin
+          build_pico2_w/*.dis
+          build_pico2_w/*.elf
+          build_pico2_w/*.map
+          build_pico2_w/*.hex
+          build_pico2_w/*.uf2
+
+    # Build Pico W support package into build_pico_w
+    - name: Build Pico W Package
+      run: |
+        cmake -B ${{github.workspace}}/build_pico_w -DCMAKE_BUILD_TYPE=Debug -DPICO_BOARD=pico_w
+        cmake --build ${{github.workspace}}/build_pico_w --config Debug
+
+    - name: Archive Debug Artifact
+      uses: actions/upload-artifact@v4
+      with: 
+        name: pico_w_package
+        path: |
+          src/generated/version.c  
+          build_pico_w/*.bin
+          build_pico_w/*.dis
+          build_pico_w/*.elf
+          build_pico_w/*.map
+          build_pico_w/*.hex
+          build_pico_w/*.uf2
