@@ -1,19 +1,14 @@
 /**
  * Minimal WiFi Access Point Test for Pico 2W
- * Based on official Raspberry Pi pico-examples
+ * Simplified version without DHCP/DNS
  *
  * This creates WiFi network: "PicoTest"
  * Password: "password123"
- * IP: 192.168.4.1
  */
 
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
-#include "lwip/pbuf.h"
-#include "lwip/tcp.h"
-#include "dhcpserver.h"
-#include "dnsserver.h"
 
 int main() {
     stdio_init_all();
@@ -24,10 +19,17 @@ int main() {
     if (cyw43_arch_init()) {
         printf("ERROR: CYW43 init failed!\n");
         printf("This means the WiFi chip isn't responding.\n");
+        printf("Possible causes:\n");
+        printf("- Wrong firmware package (need pico2_w not pico_w)\n");
+        printf("- Hardware defect\n");
+        printf("- SDK/driver issue\n");
         while (1) {
-            // Blink onboard LED to show failure
-            printf("FAIL\n");
-            sleep_ms(1000);
+            // Blink fast to show failure
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+            sleep_ms(100);
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
+            sleep_ms(100);
+            printf("FAIL - CYW43 init error\n");
         }
     }
 
@@ -44,25 +46,10 @@ int main() {
     printf("SUCCESS! WiFi AP is running!\n");
     printf("SSID: %s\n", ap_name);
     printf("Password: %s\n", password);
-    printf("IP: 192.168.4.1\n");
     printf("===================================\n");
     printf("\n");
-
-    // Setup IP
-    ip4_addr_t gw, mask;
-    IP4_ADDR(&gw, 192, 168, 4, 1);
-    IP4_ADDR(&mask, 255, 255, 255, 0);
-
-    // Start DHCP server
-    dhcp_server_t dhcp_server;
-    dhcp_server_init(&dhcp_server, &gw, &mask);
-
-    // Start DNS server
-    dns_server_t dns_server;
-    dns_server_init(&dns_server, &gw);
-
-    printf("DHCP and DNS servers started.\n");
-    printf("Blinking LED to show AP is active...\n\n");
+    printf("LED will blink slowly (1 sec) to show it's working.\n");
+    printf("Look for WiFi network '%s' on your device.\n\n", ap_name);
 
     // Blink LED forever to show it's working
     bool led_on = false;
