@@ -1,81 +1,77 @@
-/*
- * LED blink with FreeRTOS
+/**
+ * Minimal WiFi Access Point Test for Pico 2W
+ * Based on official Raspberry Pi pico-examples
+ *
+ * This creates WiFi network: "PicoTest"
+ * Password: "password123"
+ * IP: 192.168.4.1
  */
 
-#include <FreeRTOS.h>
-#include <task.h>
 #include <stdio.h>
-#include <stdint.h>
 #include "pico/stdlib.h"
-#include "hardware/watchdog.h"
+#include "pico/cyw43_arch.h"
+#include "lwip/pbuf.h"
+#include "lwip/tcp.h"
+#include "dhcpserver.h"
+#include "dnsserver.h"
 
-#include "FreeRTOSConfig.h"
-#include "configuration.h"
-#include "u8g2.h"
+int main() {
+    stdio_init_all();
 
-// modules
-#include "app.h"
-#include "motors.h"
-#include "eeprom.h"
-#include "scale.h"
-#include "display.h"
-#include "charge_mode.h"
-#include "rest_endpoints.h"
-#include "wireless.h"
-#include "neopixel_led.h"
-#include "mini_12864_module.h"
-#include "menu.h"
-#include "profile.h"
-#include "servo_gate.h"
+    printf("\n\n=== Pico 2W WiFi AP Test ===\n");
+    printf("Initializing CYW43...\n");
 
-// AI PID auto-tuning
-#include "ai_tuning.h"
-#include "rest_ai_tuning.h"
-
-
-int main()
-{
-    // stdio_init_all();
-    // Initialize EEPROM first
-    eeprom_init();
-
-    // Initialize Neopixel RGB on the mini 12864 board
-    neopixel_led_init();
-
-    // Configure other functions from mini 12864 display
-    mini_12864_module_init();
-
-    // Initialize wireless settings
-    wireless_init();
-
-    // Initialize AI tuning system
-    ai_tuning_init();
-    rest_ai_tuning_init();
-
-    // Load config for motors
-    motor_init_err_t motor_init_err = motors_init();
-    if (motor_init_err != MOTOR_INIT_OK) {
-        handle_motor_init_error(motor_init_err);
+    if (cyw43_arch_init()) {
+        printf("ERROR: CYW43 init failed!\n");
+        printf("This means the WiFi chip isn't responding.\n");
+        while (1) {
+            // Blink onboard LED to show failure
+            printf("FAIL\n");
+            sleep_ms(1000);
+        }
     }
 
-    // Initialize UART
-    scale_init();
+    printf("CYW43 initialized successfully!\n");
+    printf("Starting Access Point...\n");
 
-    // Initialize charge mode settings
-    charge_mode_config_init();
+    const char *ap_name = "PicoTest";
+    const char *password = "password123";
 
-    // Initialize profile data
-    profile_data_init();
+    cyw43_arch_enable_ap_mode(ap_name, password, CYW43_AUTH_WPA2_AES_PSK);
 
-    // Initialize the servo
-    servo_gate_init();
+    printf("\n");
+    printf("===================================\n");
+    printf("SUCCESS! WiFi AP is running!\n");
+    printf("SSID: %s\n", ap_name);
+    printf("Password: %s\n", password);
+    printf("IP: 192.168.4.1\n");
+    printf("===================================\n");
+    printf("\n");
 
-    // Start menu task
-    xTaskCreate(menu_task, "Menu Task", 1024, NULL, 6, NULL);
+    // Setup IP
+    ip4_addr_t gw, mask;
+    IP4_ADDR(&gw, 192, 168, 4, 1);
+    IP4_ADDR(&mask, 255, 255, 255, 0);
 
-    // Start RTOS
-    vTaskStartScheduler();
+    // Start DHCP server
+    dhcp_server_t dhcp_server;
+    dhcp_server_init(&dhcp_server, &gw, &mask);
 
-    while (true)
-        ;
+    // Start DNS server
+    dns_server_t dns_server;
+    dns_server_init(&dns_server, &gw);
+
+    printf("DHCP and DNS servers started.\n");
+    printf("Blinking LED to show AP is active...\n\n");
+
+    // Blink LED forever to show it's working
+    bool led_on = false;
+    while (1) {
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
+        led_on = !led_on;
+        printf("WiFi AP running... (LED %s)\n", led_on ? "ON" : "OFF");
+        sleep_ms(1000);
+    }
+
+    return 0;
 }
