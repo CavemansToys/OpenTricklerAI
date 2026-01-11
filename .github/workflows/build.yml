@@ -29,9 +29,9 @@ jobs:
 
     - name: Setup Pico SDK with RP2350 support
       run: |
-        echo "Cloning latest Pico SDK..."
+        echo "Cloning Pico SDK 2.2.0 (RP2350 Pico 2W WiFi fixes)..."
         rm -rf library/pico-sdk
-        git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
+        git clone --depth 1 --branch 2.2.0 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
         cd library/pico-sdk
         echo "Initializing essential SDK submodules..."
         git submodule update --init --depth 1 lib/btstack
