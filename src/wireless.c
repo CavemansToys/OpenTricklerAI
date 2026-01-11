@@ -283,10 +283,51 @@ void wireless_task(void *p) {
         vTaskResume(led_interface_task_handler);
     }
 
-    // Start in AP mode by default
-    wireless_config.current_wireless_state = WIRELESS_STATE_AP_MODE_INIT;
-    access_point_mode_start();
-    wireless_config.current_wireless_state = WIRELESS_STATE_AP_MODE_LISTEN;
+    // Start default initialize pattern
+    if (wireless_config.eeprom_wireless_metadata.enable) {
+        wireless_config.current_wireless_state = WIRELESS_STATE_STA_MODE_INIT;
+        cyw43_arch_enable_sta_mode();
+
+        // Show the current joining SSID
+        sprintf(first_line_buffer, ">%s", wireless_config.eeprom_wireless_metadata.ssid);
+
+        // If the authentication method is open then the password is NULL
+        const char * wifi_password = NULL;
+        if (wireless_config.eeprom_wireless_metadata.auth != AUTH_OPEN) {
+            wifi_password = wireless_config.eeprom_wireless_metadata.pw;
+        }
+
+        // Retry within timeframe
+        TickType_t stop_tick = xTaskGetTickCount() + pdMS_TO_TICKS(wireless_config.eeprom_wireless_metadata.timeout_ms);
+        while (xTaskGetTickCount() < stop_tick) {
+            int resp;
+            resp = cyw43_arch_wifi_connect_timeout_ms(wireless_config.eeprom_wireless_metadata.ssid,
+                                                      wifi_password,
+                                                      get_cyw43_auth(wireless_config.eeprom_wireless_metadata.auth),
+                                                      wireless_config.eeprom_wireless_metadata.timeout_ms);
+            if (resp == PICO_OK) {
+                wireless_config.current_wireless_state = WIRELESS_STATE_STA_MODE_LISTEN;
+                break;
+            }
+            else {
+
+            }
+        }
+    }
+
+    // If the state didn't change (connection failed) then we shall put it back to idle
+    if (wireless_config.current_wireless_state == WIRELESS_STATE_STA_MODE_INIT) {
+         wireless_config.current_wireless_state = WIRELESS_STATE_IDLE;
+    }
+
+
+    // If not configured, or failed to connect existing wifi then start the AP mode
+    if (wireless_config.current_wireless_state == WIRELESS_STATE_IDLE) {
+        // If previous configured, then start STA mode by default
+        wireless_config.current_wireless_state = WIRELESS_STATE_AP_MODE_INIT;
+        access_point_mode_start();
+        wireless_config.current_wireless_state = WIRELESS_STATE_AP_MODE_LISTEN;
+    }
 
     // Initialize REST endpoints
     // If the current wireless state is AP mode then we will map / to the wifi configuration
