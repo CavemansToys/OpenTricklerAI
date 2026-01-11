@@ -29,9 +29,9 @@ jobs:
 
     - name: Setup Pico SDK
       run: |
-        echo "Cloning Pico SDK master (RP2040 for Pico 2W compatibility)..."
+        echo "Cloning Pico SDK 2.0.0 (stable RP2040 version)..."
         rm -rf library/pico-sdk
-        git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
+        git clone --depth 1 --branch 2.0.0 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
         cd library/pico-sdk
         echo "Initializing essential SDK submodules..."
         git submodule update --init --depth 1 lib/btstack
