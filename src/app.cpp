@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "pico/stdlib.h"
-#include "pico/cyw43_arch.h"
 #include "hardware/watchdog.h"
 
 #include "FreeRTOSConfig.h"
@@ -32,22 +31,6 @@
 // AI PID auto-tuning
 #include "ai_tuning.h"
 #include "rest_ai_tuning.h"
-
-
-// Heartbeat LED task
-void heartbeat_task(void *p) {
-    (void)p;
-    bool led_state = false;
-
-    while (true) {
-        // Toggle LED state
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_state);
-        led_state = !led_state;
-
-        // Blink at 1Hz (500ms on, 500ms off)
-        vTaskDelay(pdMS_TO_TICKS(500));
-    }
-}
 
 
 int main()
@@ -86,9 +69,6 @@ int main()
 
     // Initialize the servo
     servo_gate_init();
-
-    // Start heartbeat LED task
-    xTaskCreate(heartbeat_task, "Heartbeat", 256, NULL, 1, NULL);
 
     // Start menu task
     xTaskCreate(menu_task, "Menu Task", 1024, NULL, 6, NULL);
