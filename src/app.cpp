@@ -35,9 +35,12 @@
 
 int main()
 {
-    // stdio_init_all();
+    stdio_init_all();
+    printf("OpenTrickler v1.16-AI Starting...\n");
+
     // Initialize EEPROM first
     eeprom_init();
+    printf("EEPROM initialized\n");
 
     // Initialize Neopixel RGB on the mini 12864 board
     neopixel_led_init();
