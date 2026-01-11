@@ -1,4 +1,4 @@
-name: Build Firmware (Pico 2W - RP2350)
+name: Build Firmware (Pico 2W - RP2040 compat mode)
 
 on:
   push:
@@ -27,9 +27,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
 
-    - name: Setup Pico SDK with RP2350 support
+    - name: Setup Pico SDK
       run: |
-        echo "Cloning Pico SDK master (latest RP2350 Pico 2W fixes)..."
+        echo "Cloning Pico SDK master (RP2040 for Pico 2W compatibility)..."
         rm -rf library/pico-sdk
         git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
         cd library/pico-sdk
@@ -45,7 +45,7 @@ jobs:
         cd blink-test
         mkdir build
         cd build
-        cmake .. -DPICO_SDK_PATH=$PWD/../../library/pico-sdk -DPICO_BOARD=pico2_w -DPICO_PLATFORM=rp2350
+        cmake .. -DPICO_SDK_PATH=$PWD/../../library/pico-sdk -DPICO_BOARD=pico_w -DPICO_PLATFORM=rp2040
         make -j$(nproc)
 
     - name: Build MINIMAL test mode (no OTA, no partitions)
@@ -54,7 +54,7 @@ jobs:
         cd build-minimal
         # Temporarily move partition table so it's not embedded
         mv ../partition_table.json ../partition_table.json.bak || true
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=ON
+        cmake .. -DPICO_PLATFORM=rp2040 -DPICO_BOARD=pico_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=ON
         make -j$(nproc)
         # Restore partition table
         mv ../partition_table.json.bak ../partition_table.json || true
@@ -63,20 +63,20 @@ jobs:
       run: |
         mkdir build-test
         cd build-test
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=ON
+        cmake .. -DPICO_PLATFORM=rp2040 -DPICO_BOARD=pico_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=ON
         make -j$(nproc)
 
     - name: Build PRODUCTION mode (full hardware support)
       run: |
         mkdir build-production
         cd build-production
-        cmake .. -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=OFF
+        cmake .. -DPICO_PLATFORM=rp2040 -DPICO_BOARD=pico_w -DBUILD_OTA_BOOTLOADER=OFF -DUSE_OTA_LINKER_SCRIPT=OFF -DWIFI_TEST_MODE=OFF
         make -j$(nproc)
 
     - name: Upload BLINK-ONLY test firmware
       uses: actions/upload-artifact@v4
       with:
-        name: firmware-pico2w-rp2350-BLINK-ONLY
+        name: firmware-pico2w-rp2040-BLINK-ONLY
         path: |
           blink-test/build/blink.uf2
           blink-test/build/blink.bin
@@ -85,7 +85,7 @@ jobs:
     - name: Upload MINIMAL test firmware
       uses: actions/upload-artifact@v4
       with:
-        name: firmware-pico2w-rp2350-MINIMAL
+        name: firmware-pico2w-rp2040-MINIMAL
         path: |
           build-minimal/app.uf2
           build-minimal/app.bin
@@ -94,7 +94,7 @@ jobs:
     - name: Upload TEST mode firmware
       uses: actions/upload-artifact@v4
       with:
-        name: firmware-pico2w-rp2350-TEST
+        name: firmware-pico2w-rp2040-TEST
         path: |
           build-test/app.uf2
           build-test/app.bin
@@ -103,7 +103,7 @@ jobs:
     - name: Upload PRODUCTION mode firmware
       uses: actions/upload-artifact@v4
       with:
-        name: firmware-pico2w-rp2350-PRODUCTION
+        name: firmware-pico2w-rp2040-PRODUCTION
         path: |
           build-production/app.uf2
           build-production/app.bin
