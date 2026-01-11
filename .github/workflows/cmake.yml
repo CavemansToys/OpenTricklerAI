@@ -23,10 +23,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with: 
+      with:
         fetch-depth: 0          # Fetch all branches and tags
-        submodules: recursive   # Automatically pull all submodules
-      
+
+    - name: Clone all dependencies
+      run: |
+        echo "Cloning project dependencies..."
+        rm -rf library/*
+        git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git library/pico-sdk
+        git clone --depth 1 https://github.com/raspberrypi/FreeRTOS-Kernel.git library/FreeRTOS-Kernel
+        git clone --depth 1 https://github.com/olikraus/u8g2.git library/u8g2
+        git clone --depth 1 https://github.com/terjeio/Trinamic-library.git library/Trinamic-library
+        cd library/pico-sdk
+        git submodule update --init --depth 1 lib/btstack
+        git submodule update --init --depth 1 lib/cyw43-driver
+        git submodule update --init --depth 1 lib/lwip
+        git submodule update --init --depth 1 lib/mbedtls
+
     - name: Install Build Dependencies
       run: | 
         sudo apt-get update
